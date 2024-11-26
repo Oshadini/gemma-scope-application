@@ -67,18 +67,13 @@ if user_input:
     # Tokenize the sentence and store tokens in session state
     st.session_state["tokens"] = tokenize_sentence(user_input)
 
-# Display tokens as selectable buttons in a compact layout
+# Display tokens as selectable buttons
 if st.session_state["tokens"]:
     st.markdown("<h3 style='color: #007acc;'>Generated Tokens</h3>", unsafe_allow_html=True)
-
-    # Group buttons into rows of up to 6 tokens per row
-    cols_per_row = 6
-    for i in range(0, len(st.session_state["tokens"]), cols_per_row):
-        row_tokens = st.session_state["tokens"][i:i+cols_per_row]
-        cols = st.columns(len(row_tokens))  # Create one column per token in the row
-        for col, token in zip(cols, row_tokens):
-            if col.button(token):
-                st.session_state["selected_token"] = token  # Store selected token in session state
+    cols = st.columns(len(st.session_state["tokens"]))
+    for idx, token in enumerate(st.session_state["tokens"]):
+        if cols[idx].button(token):
+            st.session_state["selected_token"] = token  # Store selected token in session state
 
 # Display descriptions for the selected token
 if st.session_state["selected_token"]:
