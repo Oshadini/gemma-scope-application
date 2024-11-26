@@ -18,13 +18,26 @@ def tokenize_sentence(sentence):
 def fetch_descriptions(token):
     """Fetch descriptions for a given token from the API."""
     payload = {"text": token}
+    explanations = []
     try:
         response = requests.post(API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
-        return response.json().get("result", [])
+        result_data = response.json().get("result", [])
+        
+        # Extract nested descriptions
+        for result in result_data:
+            neuron = result.get("neuron", {})  # Get 'neuron' object
+            if neuron:
+                nested_explanations = neuron.get("explanations", [])  # Access 'explanations'
+                if isinstance(nested_explanations, list):  # Ensure it's a list
+                    for explanation in nested_explanations:
+                        explanations.append({
+                            "description": explanation.get("description", "No description available"),
+                            "neuron": neuron
+                        })
     except requests.exceptions.RequestException as e:
         st.error(f"API error: {e}")
-        return []
+    return explanations
 
 # Streamlit UI Setup
 st.set_page_config(page_title="Token Description Tool", layout="wide")
@@ -49,8 +62,10 @@ if user_input:
         if descriptions:
             st.markdown(f"**Token: `{token}`**", unsafe_allow_html=True)
             for desc in descriptions:
+                neuron = desc.get("neuron", {})
                 st.markdown(
                     f"<div style='background-color: #f0f8ff; border-radius: 5px; padding: 10px; margin: 5px 0;'>"
+                    f"<strong>Neuron:</strong> {neuron.get('name', 'Unknown')}<br>"
                     f"{desc.get('description', 'No description available')}"
                     f"</div>",
                     unsafe_allow_html=True
