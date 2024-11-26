@@ -67,13 +67,18 @@ if user_input:
     # Tokenize the sentence and store tokens in session state
     st.session_state["tokens"] = tokenize_sentence(user_input)
 
-# Display tokens as selectable buttons
+# Display tokens as selectable buttons in a compact layout
 if st.session_state["tokens"]:
     st.markdown("<h3 style='color: #007acc;'>Generated Tokens</h3>", unsafe_allow_html=True)
-    cols = st.columns(len(st.session_state["tokens"]))
-    for idx, token in enumerate(st.session_state["tokens"]):
-        if cols[idx].button(token):
-            st.session_state["selected_token"] = token  # Store selected token in session state
+
+    # Group buttons into rows of up to 6 tokens per row
+    cols_per_row = 6
+    for i in range(0, len(st.session_state["tokens"]), cols_per_row):
+        row_tokens = st.session_state["tokens"][i:i+cols_per_row]
+        cols = st.columns(len(row_tokens))  # Create one column per token in the row
+        for col, token in zip(cols, row_tokens):
+            if col.button(token):
+                st.session_state["selected_token"] = token  # Store selected token in session state
 
 # Display descriptions for the selected token
 if st.session_state["selected_token"]:
@@ -86,6 +91,7 @@ if st.session_state["selected_token"]:
             neuron = desc.get("neuron", {})
             st.markdown(
                 f"<div style='background-color: #f0f8ff; border-radius: 5px; padding: 10px; margin: 5px 0;'>"
+                f"<strong>Neuron:</strong> {neuron.get('name', 'Unknown')}<br>"
                 f"{desc.get('description', 'No description available')}"
                 f"</div>",
                 unsafe_allow_html=True
