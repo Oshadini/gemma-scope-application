@@ -86,7 +86,6 @@ if st.session_state["selected_token"]:
             neuron = desc.get("neuron", {})
             st.markdown(
                 f"<div style='background-color: #f0f8ff; border-radius: 5px; padding: 10px; margin: 5px 0;'>"
-                f"<strong>Neuron:</strong> {neuron.get('name', 'Unknown')}<br>"
                 f"{desc.get('description', 'No description available')}"
                 f"</div>",
                 unsafe_allow_html=True
