@@ -17,7 +17,16 @@ def tokenize_sentence(sentence):
 # Helper Function: Fetch explanations from API
 def fetch_descriptions(token):
     """Fetch descriptions for a given token from the API."""
-    payload = {"text": token}
+    payload = {
+        "modelId": "gpt2-small",
+        "sourceSet": "res-jb",
+        "text": token,  # Use the token here
+        "selectedLayers": ["6-res-jb"],
+        "sortIndexes": [1],
+        "ignoreBos": False,
+        "densityThreshold": -1,
+        "numResults": 50
+    }
     explanations = []
     try:
         response = requests.post(API_URL, json=payload, headers=HEADERS)
