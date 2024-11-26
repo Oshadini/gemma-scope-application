@@ -51,25 +51,32 @@ def fetch_descriptions(token):
 # Streamlit UI Setup
 st.set_page_config(page_title="Token Description Tool", layout="wide")
 
-# User Input via Chat
+# UI Header
 st.markdown("<h1 style='text-align: center; color: #007acc;'>Token Description Tool</h1>", unsafe_allow_html=True)
+
+# User Input via Chat
 user_input = st.chat_input("Your Message:", key="user_input")
 
 if user_input:
     # Tokenize the sentence
     tokens = tokenize_sentence(user_input)
     
-    # Fetch descriptions for each token
-    token_descriptions = {}
-    for token in tokens:
-        descriptions = fetch_descriptions(token)
-        token_descriptions[token] = descriptions
+    # Display tokens as selectable buttons
+    st.markdown("<h3 style='color: #007acc;'>Generated Tokens</h3>", unsafe_allow_html=True)
+    selected_token = None
     
-    # Display Results
-    st.markdown("<h2 style='color: #007acc;'>Generated Descriptions</h2>", unsafe_allow_html=True)
-    for token, descriptions in token_descriptions.items():
+    # Create a button for each token
+    cols = st.columns(len(tokens))
+    for idx, token in enumerate(tokens):
+        if cols[idx].button(token):
+            selected_token = token
+
+    if selected_token:
+        # Fetch descriptions for the selected token
+        st.markdown(f"<h3 style='color: #007acc;'>Descriptions for Token: `{selected_token}`</h3>", unsafe_allow_html=True)
+        descriptions = fetch_descriptions(selected_token)
+        
         if descriptions:
-            st.markdown(f"**Token: `{token}`**", unsafe_allow_html=True)
             for desc in descriptions:
                 neuron = desc.get("neuron", {})
                 st.markdown(
@@ -80,4 +87,4 @@ if user_input:
                     unsafe_allow_html=True
                 )
         else:
-            st.markdown(f"**Token: `{token}` - No descriptions found.**", unsafe_allow_html=True)
+            st.markdown(f"No descriptions found for `{selected_token}`.", unsafe_allow_html=True)
