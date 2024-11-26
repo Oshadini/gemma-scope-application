@@ -54,6 +54,10 @@ st.set_page_config(page_title="Token Description Tool", layout="wide")
 # UI Header
 st.markdown("<h1 style='text-align: center; color: #007acc;'>Token Description Tool</h1>", unsafe_allow_html=True)
 
+# Initialize session state for selected token
+if "selected_token" not in st.session_state:
+    st.session_state["selected_token"] = None
+
 # User Input via Chat
 user_input = st.chat_input("Your Message:", key="user_input")
 
@@ -63,16 +67,15 @@ if user_input:
     
     # Display tokens as selectable buttons
     st.markdown("<h3 style='color: #007acc;'>Generated Tokens</h3>", unsafe_allow_html=True)
-    selected_token = None
     
-    # Create a button for each token
     cols = st.columns(len(tokens))
     for idx, token in enumerate(tokens):
         if cols[idx].button(token):
-            selected_token = token
+            st.session_state["selected_token"] = token  # Store selected token in session state
 
-    if selected_token:
-        # Fetch descriptions for the selected token
+    # Display descriptions for the selected token
+    if st.session_state["selected_token"]:
+        selected_token = st.session_state["selected_token"]
         st.markdown(f"<h3 style='color: #007acc;'>Descriptions for Token: `{selected_token}`</h3>", unsafe_allow_html=True)
         descriptions = fetch_descriptions(selected_token)
         
