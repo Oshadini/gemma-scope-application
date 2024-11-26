@@ -21,7 +21,7 @@ def fetch_descriptions(token):
         "modelId": "gpt2-small",
         "sourceSet": "res-jb",
         "text": token,  # Use the token here
-        "selectedLayers": ["6-res-jb"],
+        "selectedLayers": ["12-res-jb"],
         "sortIndexes": [1],
         "ignoreBos": False,
         "densityThreshold": -1,
