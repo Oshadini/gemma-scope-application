@@ -117,7 +117,7 @@ st.markdown(
     .stButton > button {
         height: 40px;  /* Uniform button height */
         width: auto;  /* Auto width */
-        background-color: #f2f9ff;  /* Blue background */
+        background-color: #e6f3ff;  /* Blue background */
         color: white;  /* White text */
         border-radius: 5px;  /* Rounded corners */
         border: none;  /* No border */
