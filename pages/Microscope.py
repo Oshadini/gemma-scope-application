@@ -34,7 +34,7 @@ def fetch_explanations_for_token(token):
         "text": token,
         "selectedLayers": SELECTED_LAYERS,
         "sortIndexes": [1],
-        "ignoreBos": False,
+        "ignoreBos": True,
         "densityThreshold": -1,
         "numResults": 50,
     }
