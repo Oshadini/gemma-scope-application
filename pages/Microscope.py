@@ -127,7 +127,7 @@ st.markdown(
         margin: 0 5px;  /* Margin for spacing between buttons */
     }
     .stButton > button:hover {
-        background-color: #005f99;  /* Darker blue on hover */
+        background-color: #005f00;  /* Darker blue on hover */
     }
     </style>
     """,
