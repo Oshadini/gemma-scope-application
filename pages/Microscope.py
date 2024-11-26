@@ -1,50 +1,59 @@
 import streamlit as st
 import requests
+import re  # For tokenization
 
-# Streamlit UI
-st.title("Neuronpedia API Tester")
-st.markdown("Enter the details below to test the API.")
+# Constants
+API_URL = "https://www.neuronpedia.org/api/search-all"
+HEADERS = {
+    "Content-Type": "application/json",
+    "X-Api-Key": "your_api_key_here"  # Replace with your actual API token
+}
 
-# Input fields
-api_key = st.text_input("API Key", type="password")
-model_id = st.text_input("Model ID", value="gpt2-small")
-source_set = st.text_input("Source Set", value="res-jb")
-text_input = st.text_area("Text Input", value="hello world")
-selected_layers = st.text_input("Selected Layers (comma-separated)", value="6-res-jb")
-sort_indexes = st.text_input("Sort Indexes (comma-separated)", value="1")
-ignore_bos = st.checkbox("Ignore BOS", value=False)
-density_threshold = st.number_input("Density Threshold", value=-1)
-num_results = st.number_input("Number of Results", value=50, step=1)
+# Helper Function: Tokenize sentence
+def tokenize_sentence(sentence):
+    """Tokenize the input sentence into words or punctuation."""
+    return re.findall(r"\b\w+\b|[^\w\s]", sentence)
 
-# Send API request on button click
-if st.button("Send Request"):
-    url = "https://www.neuronpedia.org/api/search-all"
-    
-    # Prepare payload
-    payload = {
-        "modelId": model_id,
-        "sourceSet": source_set,
-        "text": text_input,
-        "selectedLayers": selected_layers.split(","),
-        "sortIndexes": [int(i) for i in sort_indexes.split(",")],
-        "ignoreBos": ignore_bos,
-        "densityThreshold": density_threshold,
-        "numResults": num_results
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "X-Api-Key": api_key
-    }
-    
-    # Make the POST request
+# Helper Function: Fetch explanations from API
+def fetch_descriptions(token):
+    """Fetch descriptions for a given token from the API."""
+    payload = {"text": token}
     try:
-        response = requests.post(url, json=payload, headers=headers)
-        if response.status_code == 200:
-            st.success("Request Successful!")
-            st.json(response.json())
+        response = requests.post(API_URL, json=payload, headers=HEADERS)
+        response.raise_for_status()
+        return response.json().get("result", [])
+    except requests.exceptions.RequestException as e:
+        st.error(f"API error: {e}")
+        return []
+
+# Streamlit UI Setup
+st.set_page_config(page_title="Token Description Tool", layout="wide")
+
+# User Input via Chat
+st.markdown("<h1 style='text-align: center; color: #007acc;'>Token Description Tool</h1>", unsafe_allow_html=True)
+user_input = st.chat_input("Your Message:", key="user_input")
+
+if user_input:
+    # Tokenize the sentence
+    tokens = tokenize_sentence(user_input)
+    
+    # Fetch descriptions for each token
+    token_descriptions = {}
+    for token in tokens:
+        descriptions = fetch_descriptions(token)
+        token_descriptions[token] = descriptions
+    
+    # Display Results
+    st.markdown("<h2 style='color: #007acc;'>Generated Descriptions</h2>", unsafe_allow_html=True)
+    for token, descriptions in token_descriptions.items():
+        if descriptions:
+            st.markdown(f"**Token: `{token}`**", unsafe_allow_html=True)
+            for desc in descriptions:
+                st.markdown(
+                    f"<div style='background-color: #f0f8ff; border-radius: 5px; padding: 10px; margin: 5px 0;'>"
+                    f"{desc.get('description', 'No description available')}"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
         else:
-            st.error(f"Request failed with status code {response.status_code}")
-            st.text(response.text)
-    except Exception as e:
-        st.error("An error occurred!")
-        st.text(str(e))
+            st.markdown(f"**Token: `{token}` - No descriptions found.**", unsafe_allow_html=True)
