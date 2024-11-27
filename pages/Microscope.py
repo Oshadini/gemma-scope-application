@@ -1,3 +1,4 @@
+# micro.py
 import streamlit as st
 import requests
 import re  # For tokenization
@@ -15,18 +16,34 @@ def tokenize_sentence(sentence):
     return re.findall(r"\b\w+\b|[^\w\s]", sentence)
 
 # Helper Function: Fetch explanations from API
-def fetch_descriptions(token):
-    """Fetch descriptions for a given token from the API."""
-    payload = {
-        "modelId": "gpt2-small",
-        "sourceSet": "res-jb",
-        "text": token,  # Use the token here
-        "selectedLayers": ["12-res-jb"],
-        "sortIndexes": [1],
-        "ignoreBos": False,
-        "densityThreshold": -1,
-        "numResults": 50
-    }
+def fetch_descriptions(token, model_id):
+    """Fetch descriptions for a given token from the API based on the selected model."""
+    if model_id == "gpt2-small":
+        payload = {
+            "modelId": "gpt2-small",
+            "sourceSet": "res-jb",
+            "text": token,
+            "selectedLayers": ["12-res-jb"],
+            "sortIndexes": [1],
+            "ignoreBos": False,
+            "densityThreshold": -1,
+            "numResults": 50
+        }
+    elif model_id == "llama3.1-8b":
+        payload = {
+            "modelId": "llama3.1-8b",
+            "sourceSet": "llamascope-res-32k",
+            "text": token,
+            "selectedLayers": ["31-llamascope-res-32k"],
+            "sortIndexes": [1],
+            "ignoreBos": False,
+            "densityThreshold": -1,
+            "numResults": 50
+        }
+    else:
+        st.error(f"Unsupported model: {model_id}")
+        return []
+
     explanations = []
     try:
         response = requests.post(API_URL, json=payload, headers=HEADERS)
@@ -59,6 +76,17 @@ if "tokens" not in st.session_state:
     st.session_state["tokens"] = []
 if "selected_token" not in st.session_state:
     st.session_state["selected_token"] = None
+if "model_id" not in st.session_state:
+    st.session_state["model_id"] = "gpt2-small"  # Default model
+
+# Model Selection
+st.sidebar.markdown("<h3 style='color: #007acc;'>Select Model</h3>", unsafe_allow_html=True)
+model_id = st.sidebar.radio(
+    "Choose a model:",
+    options=["gpt2-small", "llama3.1-8b"],
+    index=0
+)
+st.session_state["model_id"] = model_id
 
 # User Input via Chat
 user_input = st.chat_input("Your Message:", key="user_input")
@@ -78,8 +106,9 @@ if st.session_state["tokens"]:
 # Display descriptions for the selected token
 if st.session_state["selected_token"]:
     selected_token = st.session_state["selected_token"]
+    selected_model_id = st.session_state["model_id"]
     st.markdown(f"<h3 style='color: #007acc;'>Descriptions for Token: `{selected_token}`</h3>", unsafe_allow_html=True)
-    descriptions = fetch_descriptions(selected_token)
+    descriptions = fetch_descriptions(selected_token, selected_model_id)
     
     if descriptions:
         for desc in descriptions:
