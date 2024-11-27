@@ -27,7 +27,7 @@ def fetch_descriptions(token, model_id):
             "sortIndexes": [1],
             "ignoreBos": False,
             "densityThreshold": -1,
-            "numResults": 50
+            "numResults": 5
         }
     elif model_id == "llama3.1-8b":
         payload = {
@@ -38,7 +38,7 @@ def fetch_descriptions(token, model_id):
             "sortIndexes": [1],
             "ignoreBos": False,
             "densityThreshold": -1,
-            "numResults": 50
+            "numResults": 5
         }
     else:
         st.error(f"Unsupported model: {model_id}")
