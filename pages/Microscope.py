@@ -71,7 +71,7 @@ st.set_page_config(page_title="Token Description Tool", layout="wide")
 # UI Header
 st.markdown("<h1 style='text-align: center; color: #007acc;'>Token Description Tool</h1>", unsafe_allow_html=True)
 
-# Initialize session state for tokens and selected token
+# Initialize session state for tokens, selected token, and model ID
 if "tokens" not in st.session_state:
     st.session_state["tokens"] = []
 if "selected_token" not in st.session_state:
@@ -79,14 +79,14 @@ if "selected_token" not in st.session_state:
 if "model_id" not in st.session_state:
     st.session_state["model_id"] = "gpt2-small"  # Default model
 
-# Model Selection
+# Sidebar Model Selection
 st.sidebar.markdown("<h3 style='color: #007acc;'>Select Model</h3>", unsafe_allow_html=True)
 model_id = st.sidebar.radio(
     "Choose a model:",
     options=["gpt2-small", "llama3.1-8b"],
     index=0
 )
-st.session_state["model_id"] = model_id
+st.session_state["model_id"] = model_id  # Update session state
 
 # User Input via Chat
 user_input = st.chat_input("Your Message:", key="user_input")
@@ -106,7 +106,7 @@ if st.session_state["tokens"]:
 # Display descriptions for the selected token
 if st.session_state["selected_token"]:
     selected_token = st.session_state["selected_token"]
-    selected_model_id = st.session_state["model_id"]
+    selected_model_id = st.session_state["model_id"]  # Use model from session state
     st.markdown(f"<h3 style='color: #007acc;'>Descriptions for Token: `{selected_token}`</h3>", unsafe_allow_html=True)
     descriptions = fetch_descriptions(selected_token, selected_model_id)
     
