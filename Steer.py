@@ -132,7 +132,7 @@ else:
 
 
 # User input for other settings
-temperature = st.sidebar.slider("Temperature", -2.0, 2.0, 0.0)
+temperature = st.sidebar.slider("Temperature", 0.0, 2.0, 0.0)
 n_tokens = st.sidebar.number_input("Tokens", value=48, step=1)
 freq_penalty = st.sidebar.number_input("Frequency Penalty", value=2, step=1)
 seed = st.sidebar.number_input("Seed", value=16, step=1)
